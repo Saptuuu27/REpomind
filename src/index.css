@@ -1,0 +1,442 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg-canvas: #0B0D13;
+    --bg-inset: #0F121C;
+    --bg-surface: #151926;
+    --bg-raised: #181D2D;
+    --bg-overlay: #1E2438;
+    --border-subtle: rgba(59, 72, 111, 0.25);
+    --border-default: #2A324B;
+    --border-focused: rgba(139, 92, 246, 0.5);
+
+    /* Obsidian Kinetic Glass & Ambient Lighting Tokens */
+    --ok-glass-bar: rgba(21, 25, 38, 0.78);
+    --ok-glass-bar-fallback: #151926;
+    --ok-glass-panel: rgba(21, 25, 38, 0.80);
+    --ok-glass-panel-fallback: #151926;
+    --ok-glass-card: rgba(24, 29, 45, 0.72);
+    --ok-glass-card-hover: rgba(30, 36, 56, 0.80);
+    --ok-glass-card-fallback: #181D2D;
+    --ok-glass-floating: rgba(21, 25, 38, 0.86);
+    --ok-glass-floating-fallback: #151926;
+    --ok-glass-modal: rgba(24, 29, 45, 0.90);
+    --ok-glass-modal-fallback: #181D2D;
+    --ok-glass-border: rgba(88, 108, 160, 0.24);
+    --ok-glass-border-strong: rgba(139, 92, 246, 0.38);
+    --ok-glass-highlight: rgba(248, 250, 252, 0.055);
+    --ok-shadow-glass: 0 12px 30px -14px rgba(3, 5, 12, 0.7);
+    --ok-shadow-modal: 0 24px 56px -12px rgba(2, 4, 12, 0.82);
+
+    /* Dynamic Cursor Spotlight Coordinates (updated via rAF without React state) */
+    --spotlight-x: 50vw;
+    --spotlight-y: 18vh;
+    --spotlight-opacity: 0;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #0B0D13;
+    color: #F8FAFC;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  code,
+  pre,
+  kbd,
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Ambient violet & electric-blue depth behind Obsidian Kinetic translucent surfaces */
+.ok-ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(640px circle at 14% 8%, rgba(139, 92, 246, 0.09), transparent 65%),
+    radial-gradient(560px circle at 88% 14%, rgba(59, 130, 246, 0.075), transparent 65%),
+    radial-gradient(720px circle at 52% 96%, rgba(6, 182, 212, 0.045), transparent 65%);
+}
+
+/* Smooth GPU-composited pointer-following spotlight; zero layout/paint impact */
+.ok-spotlight-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 680px;
+  height: 680px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 35;
+  opacity: var(--spotlight-opacity, 0);
+  transform: translate3d(calc(var(--spotlight-x, 50vw) - 340px), calc(var(--spotlight-y, 18vh) - 340px), 0);
+  transition: opacity 260ms ease-out;
+  background: radial-gradient(
+    circle at center,
+    rgba(139, 92, 246, 0.085) 0%,
+    rgba(59, 130, 246, 0.045) 45%,
+    transparent 74%
+  );
+  will-change: transform, opacity;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ok-spotlight-layer {
+    display: none !important;
+  }
+}
+
+/* Selective Frosted-Glass Surfaces with Solid Fallbacks */
+.ok-glass-bar {
+  background-color: var(--ok-glass-bar-fallback);
+  border-color: var(--ok-glass-border);
+  box-shadow: inset 0 1px 0 var(--ok-glass-highlight);
+}
+
+.ok-glass-panel {
+  background-color: var(--ok-glass-panel-fallback);
+  border-color: var(--ok-glass-border);
+  box-shadow: inset 0 1px 0 var(--ok-glass-highlight);
+}
+
+.ok-glass-card {
+  background-color: var(--ok-glass-card-fallback);
+  border-color: var(--ok-glass-border);
+  box-shadow: inset 0 1px 0 var(--ok-glass-highlight), var(--ok-shadow-glass);
+}
+
+.ok-glass-card-interactive {
+  background-color: var(--ok-glass-card-fallback);
+  border-color: var(--ok-glass-border);
+  box-shadow: inset 0 1px 0 var(--ok-glass-highlight), var(--ok-shadow-glass);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.ok-glass-card-interactive:hover {
+  border-color: rgba(139, 92, 246, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(248, 250, 252, 0.075),
+    0 14px 34px -14px rgba(10, 14, 30, 0.85);
+}
+
+.ok-glass-floating {
+  background-color: var(--ok-glass-floating-fallback);
+  border-color: rgba(88, 108, 160, 0.3);
+  box-shadow:
+    inset 0 1px 0 var(--ok-glass-highlight),
+    0 10px 28px -8px rgba(2, 4, 12, 0.72);
+}
+
+.ok-glass-modal {
+  background-color: var(--ok-glass-modal-fallback);
+  border-color: rgba(88, 108, 160, 0.36);
+  box-shadow:
+    inset 0 1px 0 rgba(248, 250, 252, 0.08),
+    var(--ok-shadow-modal);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ok-glass-bar {
+    background-color: var(--ok-glass-bar);
+    -webkit-backdrop-filter: blur(12px) saturate(135%);
+    backdrop-filter: blur(12px) saturate(135%);
+  }
+
+  .ok-glass-panel {
+    background-color: var(--ok-glass-panel);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    backdrop-filter: blur(14px) saturate(130%);
+  }
+
+  .ok-glass-card,
+  .ok-glass-card-interactive {
+    background-color: var(--ok-glass-card);
+    -webkit-backdrop-filter: blur(10px) saturate(125%);
+    backdrop-filter: blur(10px) saturate(125%);
+  }
+
+  .ok-glass-card-interactive:hover {
+    background-color: var(--ok-glass-card-hover);
+  }
+
+  .ok-glass-floating {
+    background-color: var(--ok-glass-floating);
+    -webkit-backdrop-filter: blur(12px) saturate(135%);
+    backdrop-filter: blur(12px) saturate(135%);
+  }
+
+  .ok-glass-modal {
+    background-color: var(--ok-glass-modal);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+}
+
+/* Primary Obsidian Kinetic action button polish */
+.ok-btn-primary {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 18px -6px rgba(139, 92, 246, 0.55);
+  transition:
+    filter 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.ok-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 22px -6px rgba(139, 92, 246, 0.72);
+}
+
+.ok-btn-primary:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+
+.ok-btn-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #0B0D13,
+    0 0 0 4px rgba(139, 92, 246, 0.75);
+}
+
+/* Subtle modal/backdrop entrance */
+@keyframes okFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes okModalRise {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ok-backdrop-enter {
+  animation: okFadeIn 150ms ease-out;
+}
+
+.ok-modal-enter {
+  animation: okModalRise 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ok-spotlight-layer {
+    display: none !important;
+  }
+
+  .ok-backdrop-enter,
+  .ok-modal-enter,
+  .animate-spin,
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  .ok-glass-card-interactive,
+  .ok-btn-primary {
+    transition: none !important;
+  }
+}
+
+/* Subtle Obsidian Kinetic scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.28);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.45);
+}
+
+/* React Flow Obsidian Kinetic theme overrides (higher specificity for lazy CSS chunk order) */
+.react-flow .react-flow__controls {
+  background: rgba(21, 25, 38, 0.86) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(88, 108, 160, 0.3) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 28px -8px rgba(2, 4, 12, 0.72) !important;
+}
+
+.react-flow .react-flow__controls-button {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(59, 72, 111, 0.28) !important;
+  color: #CBD5E1 !important;
+  fill: #CBD5E1 !important;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.react-flow .react-flow__controls-button:hover {
+  background: rgba(30, 36, 56, 0.85) !important;
+  color: #F8FAFC !important;
+}
+
+.react-flow .react-flow__minimap {
+  background: rgba(21, 25, 38, 0.84) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(88, 108, 160, 0.3) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 28px -8px rgba(2, 4, 12, 0.72) !important;
+}
+
+/* Clean Markdown typography inside Obsidian Kinetic surfaces */
+.markdown-body h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #F8FAFC;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(59, 72, 111, 0.25);
+}
+
+.markdown-body h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #F8FAFC;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #E2E2EB;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.markdown-body p {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #CBD5E1;
+  margin-bottom: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #CBD5E1;
+}
+
+.markdown-body ul {
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.markdown-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  background-color: #0F121C;
+  border: 1px solid rgba(59, 72, 111, 0.35);
+  color: #ADC6FF;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.markdown-body pre {
+  background-color: #0F121C;
+  border: 1px solid #2A324B;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  max-width: 100%;
+  margin-bottom: 0.85rem;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #E2E2EB;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  overflow-wrap: normal;
+}
+
+.markdown-body a {
+  color: #3B82F6;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.markdown-body blockquote {
+  border: 1px solid rgba(59, 72, 111, 0.35);
+  background: #151926;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  color: #94A3B8;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.85rem;
+  font-size: 0.8125rem;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid rgba(59, 72, 111, 0.3);
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: #151926;
+  color: #F8FAFC;
+  font-weight: 600;
+}

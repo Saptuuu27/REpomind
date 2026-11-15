@@ -1,0 +1,8 @@
+{
+  "name": "Remix RepoMind",
+  "description": "AI-powered developer codebase intelligence, RAG assistant, architecture explorer, and documentation generator for public GitHub repositories.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
